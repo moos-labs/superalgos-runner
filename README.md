@@ -64,9 +64,41 @@ set -o pipefail; bash scripts/superalgos_attempt.sh 2>&1 | tee results/run.log
 
 ### Honest findings
 
-_To be updated with the verified pilot run (run URL, commit cloned, return
-codes and the quoted stopping point) — see `results/attempt.md` in the run
-artifact for the primary record._
+Verified pilot run — 2026-11-10:
+[run 42823450776](https://github.com/moos-labs/superalgos-runner/actions/runs/42823450776)
+— conclusion **success** (all steps success; 168s of script time).
+Full record in that run's `results` artifact (`attempt.md` + logs).
+
+- **Commit cloned:** `9f0fb59edd4bae7afa08d06c366e0bcb48103aec`
+  (Superalgos `master`, shallow clone, rc 0)
+- **Runtime:** Node v20.20.2, npm 10.8.2, Git 2.56.0 on ubuntu-latest
+- **`node setup`: rc 0** — `npm ci --omit=optional` added 1575 packages
+  (1795 audited) in 33s; husky hooks installed.
+- **`node setupPlugins` (no args): rc 0 but a no-op warning** — it does
+  not fail, it installs nothing:
+  > `[WARN] You need to provide your Github username and token in order for this script to Fork the Plugins repositories into your acccount for you.`
+  > `[WARN] Add your user name and token to the parameters of this script and try again please.`
+- **`node platform minMemo noBrowser`: rc 124** — i.e. it was still
+  running when the 120s window ended, which is the success case here.
+  All 11 platform servers reported `Started`, the HTTP interface was
+  `Listening at port 34248`, WebSockets at 18041, and the log ends with
+  `Superalgos Platform App is Running!` (Platform 1.6.1). It loaded
+  **no workspace**: `Initial Workspace ... undefined undefined`.
+- **No backtest ran, and none was expected.** The stopping point below
+  is the verified one, not a setup failure — setup and headless start
+  both work; a backtest does not exist as a headless operation.
+
+Exact stopping point for a headless backtest:
+
+> Blocked at Community Plugins + interactive workspace:
+> `node setupPlugins` requires a personal GitHub username + Personal
+> Access Token (repo+workflow scopes) and forks/clones plugin repos;
+> without it Plugins/ is incomplete. Even with plugins, a backtest is
+> not a CLI command — strategies, data-mines and backtesting sessions
+> are built/run inside the visual workspace UI, require a workspace
+> (project+workspace args), exchange data-mining and, for
+> live/exchange data, exchange API keys. No documented headless
+> backtest CLI exists in the README.
 
 Known from the README alone, before any run:
 
